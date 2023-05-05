@@ -1,13 +1,5 @@
 977. Squares of a Sorted Array
-Easy
-7.7K
-192
-company
-Yandex
-company
-Amazon
-company
-Facebook
+
 Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
 
  
