@@ -22,11 +22,28 @@ fn main() {
     println!("=====================destructure===================");
     println!("x = {x}, y ={y}");
     println!("px= {}, py= {}", p.x, p.y);
+
+    // structs
+    let user1 = User {
+        name: String::from("yuse wang"),
+        age: 18,
+        email: String::from("yusenw2@illinois.edu"),
+    };
+
+    let user2 = User { ..user1 };
+
+    println!("user1 name = moved, user2 name = {}", user2.name);
 }
 
 struct Point {
     x: i32,
     y: i32,
+}
+
+struct User {
+    name: String,
+    age: usize,
+    email: String,
 }
 
 fn change(some_string: &mut String) {
