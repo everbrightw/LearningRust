@@ -5,7 +5,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents =
         fs::read_to_string(config.file_path).expect("Should have been able to read the file");
 
+    println!("================ contents start ===========");
     print!("With text:\n{contents}");
+    println!("================ contents stop  ===========");
+
+    for line in search(&config.query, &contents) {
+        println!("{line}");
+    }
     Ok(())
 }
 
@@ -36,7 +42,13 @@ impl Config {
 
 // TODO: learn lifetime parameter
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    vec![]
+    let mut result = Vec::new();
+    for line in contents.lines() {
+        if line.contains(query) {
+            result.push(line);
+        }
+    }
+    result
 }
 
 #[cfg(test)]
@@ -52,5 +64,16 @@ safe, fast, productive.
 Pick three.";
 
         assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+    }
+
+    #[test]
+    fn test_search_case_insensitive() {
+        let query = "rUST";
+        let contents = "\
+Rust:
+Tust me.            
+safe, fast, productive.
+Pick three.";
+        assert_eq!(vec!["Rust:, Trust me"], search(&query, &contents));
     }
 }
