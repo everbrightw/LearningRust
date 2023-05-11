@@ -1,3 +1,4 @@
+use std::env;
 use std::error::Error;
 use std::fs;
 
@@ -9,15 +10,23 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     print!("With text:\n{contents}");
     println!("================ contents stop  ===========");
 
-    for line in search(&config.query, &contents) {
+    let results = if config.ignore_case {
+        search_with_insensitive(&config.query, &contents)
+    } else {
+        search(&config.query, &contents)
+    };
+
+    for line in results {
         println!("{line}");
     }
+
     Ok(())
 }
 
 pub struct Config {
     pub query: String,
     pub file_path: String,
+    pub ignore_case: bool,
 }
 
 // fn parse_config(args: &[String]) -> Config {
@@ -33,9 +42,12 @@ impl Config {
             return Err("not enough arguments");
         }
 
+        let trigger = env::var("IGNORE_CASE").is_ok();
+
         Ok(Config {
             query: args[1].clone(),
             file_path: args[2].clone(),
+            ignore_case: trigger,
         })
     }
 }
@@ -45,6 +57,17 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut result = Vec::new();
     for line in contents.lines() {
         if line.contains(query) {
+            result.push(line);
+        }
+    }
+    result
+}
+
+pub fn search_with_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut result = Vec::new();
+    let query = query.to_lowercase();
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
             result.push(line);
         }
     }
@@ -71,9 +94,12 @@ Pick three.";
         let query = "rUST";
         let contents = "\
 Rust:
-Tust me.            
+Trust me.
 safe, fast, productive.
 Pick three.";
-        assert_eq!(vec!["Rust:, Trust me"], search(&query, &contents));
+        assert_eq!(
+            vec!["Rust:", "Trust me."],
+            search_with_insensitive(&query, &contents)
+        );
     }
 }
